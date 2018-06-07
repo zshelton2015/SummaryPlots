@@ -24,11 +24,11 @@ indcardmaxshunt =[]
 indcardminshunt =[]
 totalbins = []
 bins = [0,1,2,3]
-shunts = [1.5,2,3,4,5,6,7,8,9,10,11,11.5]
+shunts = [1,1.5,2,3,4,5,6,7,8,9,10,11,11.5]
 #Create Histograms for comparing total shunt values
 for j in range(0,len(shunts)):
 	#totalshunts.append(TCanvas("Total Shunts for %.1f"%shunts[j],"histo"))
-	totalhist.append(TH1D("Total Shunts for %.1f"%shunts[j],"Total Shunts for %.1f"%shunts[j],200, 0 , .4))
+	totalhist.append(TH1D("Total Shunts for %.1f"%shunts[j],"Total Shunts for %.1f"%shunts[j],200, 0 , .5))
 for d in bins:
 	totalbins.append(TH1D("Combined Slopes For Range %d"%d,"Combined Slopes For Range %d"%d,200,0,.5))
 #for n
@@ -58,8 +58,7 @@ offset =0;#defining all values
 for data in databaseNames:
 	xyz1234 = sqlite3.connect(data)
 	cursor = xyz1234.cursor()
-	for w in range(24,44):
-		name+=data[w]
+	name = data[25:47]
 	print "Analyzing card with ID containing " + name
 	for x in bins:
 		counter = 0
@@ -74,7 +73,7 @@ for data in databaseNames:
 			minimums-=.1/k
 			#Make a Canvas and histogram for the shunts that's added to the list
 			#c.append(TCanvas("%s Shunt%.1f V -  Range %i"%(name,k,x),"histo"))
-			histshunt.append(TH1D("%s SLOPE Shunt %.1f V - Range %i"%(name,k,x), "%s Shunt %.1f - Range %i"%(name,k,x),100,minimums,maximums))
+			histshunt.append(TH1D("%s SLOPE Shunt %.1f - Range %i"%(name,k,x), "%s Shunt %.1f - Range %i"%(name,k,x),100,minimums,maximums))
 			histshunt[-1].GetXaxis().SetTitle("Slope")
 			histshunt[-1].GetYaxis().SetTitle("Frequency")
 			maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;"%(x,k)).fetchall()
@@ -83,20 +82,34 @@ for data in databaseNames:
 			minimumo-=k*5
 			#Make a Canvas and histogram for the offset that's added to the list
 			#c2.append(TCanvas("%s OFFSET  %.1f V Range %i"%(name,k,x) ,"histo"))
-			histoffset.append(TH1D("%s OFFSET Shunt %.1f V  - Range %d"%(name,k,x), "%s Shunt %.1f - Range %d"%(name,k,x),100,minimumo,maximumo))
+			histoffset.append(TH1D("%s OFFSET Shunt %.1f - Range %d"%(name,k,x), "%s Shunt %.1f - Range %d"%(name,k,x),50,minimumo,maximumo))
 			histoffset[-1].GetXaxis().SetTitle("Offset")
 			histoffset[-1].GetYaxis().SetTitle("Frequency")
 			#Fills the histograms with the values fetched above
 			for val in values:
 				slope , offset = val
 				histshunt[-1].Fill(slope)
-				totalhist[counter].Fill(slope)
 				histoffset[-1].Fill(offset)
 			#Write the histograms to the file, saving them for later
 			histshunt[-1].Write()
 			histoffset[-1].Write()
-			counter+=1
 	name=""
+for data in databaseNames:
+	xyz1234 = sqlite3.connect(data)
+	cursor = xyz1234.cursor()
+	name=data[25:47]
+	counter=0
+	for k in shunts:
+		#Fetch the values of slope  for the corresponding range
+		values = cursor.execute("select slope from qieshuntparams where shunt=%.1f;"%k).fetchall()
+		for val in values:
+			slope = float(val[0])
+			totalhist[counter].Fill(slope)
+		counter+=1
+	name = ""
+for hist in totalhist:
+	hist.Write()
+################################################################
 for data in databaseNames:
 	xyz1234 = sqlite3.connect(data)
 	cursor = xyz1234.cursor()
@@ -107,40 +120,42 @@ for data in databaseNames:
 		#Fetch the values of slope  for the corresponding range
 		values = cursor.execute("select slope from qieshuntparams where range=%i;"%x).fetchall()
 		for val in values:
-			totalbins[counter].Write()
+			slope = float(val[0])
+			totalbins[counter].Fill(slope)
 		counter+=1
 	name = ""
-for hist in totalhist:
-	hist.Write()
-########################################################
+for hist1 in totalbins:
+	hist1.Write()
+###############################################################
 for data in databaseNames:
 	xyz1234 = sqlite3.connect(data)
 	cursor = xyz1234.cursor()
-	for w in range(24,44):
-		name+=data[w]
+	name = data[25:47]
 #PREVIOUS LOOPS USED TO CYCLE THROUGH DATABASES
 ###############################################
 #Cycling through each total shunt histogram   #
 #Each max and min from each range is test     #
 #If a max or min is outside of a range from   #
-#The mean then the value is flagged and stored#
-#in a list									  #
+#The mean then the value is flagged and		  #
+# stored in a list							  #
 ###############################################
+	count=0
 	for k in totalhist:
+		theoretical = .3/shunts[count]
 		for rang in bins:
 			maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(rang,shunts[count])).fetchall()
 			maximums , minimums = maxmin[0]
-			if maximums>(k.GetMean()+.04) or minimums<(k.GetMean()-.04):
+			if maximums>(theoretical+(theoretical*.14)) or minimums<((theoretical-(theoretical*.14))):
 				#These are the allowance from the total mean
 				bin1.append(rang)
 				shunts1.append(shunts[count])
 				cards.append(name)
 				#Warning statement
-				print "WARNING: Values of Shunt %.1fV of card %s in range %i are outside of outside of expected width "%(shunts[count],name,rang)
-			#if count >= len(shunts):
+				print "WARNING: Values of Shunt Factor %.1f of card %s in range %i are outside of outside of expected width "%(shunts[count],name,rang)
+				#if count >= len(shunts):
 				#break
-			#else:
-				count=count+1
+				#else:
+		count=count+1
 	name=""
 #Control statement
 #print bin1 , cards, shunts1
