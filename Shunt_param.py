@@ -130,7 +130,7 @@ for hist1 in totalbins:
 for data in databaseNames:
 	xyz1234 = sqlite3.connect(data)
 	cursor = xyz1234.cursor()
-	name = data[25:47]
+	name = data[25:46]
 #PREVIOUS LOOPS USED TO CYCLE THROUGH DATABASES
 ###############################################
 #Cycling through each total shunt histogram   #
