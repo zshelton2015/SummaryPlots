@@ -7,6 +7,7 @@ import sqlite3
 import glob
 from ROOT import *
 import numpy
+import pprint
 ##Set up Style for Histograms
 
 ##Open Database and Create TFile
@@ -145,7 +146,7 @@ for data in databaseNames:
 		for rang in bins:
 			maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(rang,shunts[count])).fetchall()
 			maximums , minimums = maxmin[0]
-			if maximums>(theoretical+(theoretical*.14)) or minimums<((theoretical-(theoretical*.14))):
+			if maximums>(theoretical+(theoretical*.12)) or minimums<((theoretical-(theoretical*.12))):
 				#These are the allowance from the total mean
 				bin1.append(rang)
 				shunts1.append(shunts[count])
