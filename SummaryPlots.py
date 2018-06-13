@@ -94,4 +94,4 @@ def SummaryPlot(database):
                 if 0.025>minimum or maximum>0.031:
                     print "Card %s in Shunt %.1f in Range %i failed"%(name,sh,r)
     rootout.Close()
-return "Summary Plots Made!"
+    return "Summary Plots Made!"
