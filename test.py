@@ -3,4 +3,5 @@ import SummaryPlots
 SummaryPlots.SummaryPlot("qieCalibrationParameters_0xa6000000_0xeabacd70.db")
 
 
-##SummaryPlot(ddd)
+#from SummaryPlots import SummaryPlot
+#SummaryPlot(ddd)
