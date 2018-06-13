@@ -28,9 +28,9 @@ def SummaryPlot(database):
     for r in bins:
         for sh in shunts:
             #Fetch the values of slope and offset for the corresponding shunt and range
-            values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;"%(sh,r)).fetchall()
+            values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;"%(r,sh)).fetchall()
             #Fetch Max and minimum values
-            maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(sh,r)).fetchall()
+            maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(r,sh)).fetchall()
             #SQLITE3 values are tuples, this turns the tuple into 2 numbers that can be used for ROOT arguments
             #maximum , minimum = maxmin[0]
             maximums = maximum+(.1)
@@ -39,8 +39,8 @@ def SummaryPlot(database):
             c.append(TCanvas("%s SLOPE Shunt %.1f  -  Range %i"%(name,sh,r),"histo"))
             histshunt.append(TH1D("%s SLOPE - Shunt %.1f - Range %i"%(name,sh,r), "%s Shunt %.1f - Range %i"%(name,sh,r),100,minimums,maximums))
             histshunt[-1].GetXaxis().SetTitle("Slope")
-			histshunt[-1].GetYaxis().SetTitle("Frequency")
-            c[-1].SetLogY()
+            histshunt[-1].GetYaxis().SetTitle("Frequency")
+            histshunt[-1].SetLogY()
             maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;"%(r,sh)).fetchall()
             maximumo, minimumo = maxmin[0]
             maximumo+=sh*5
@@ -49,8 +49,8 @@ def SummaryPlot(database):
             c2.append(TCanvas("%s OFFSET Shunt %.1f Range %i"%(name,sh,r) ,"histo"))
             histoffset.append(TH1D("%s OFFSET  Shunt %.1f - Range %d"%(name,sh,r), "%s Shunt %.1f - Range %d"%(name,sh,r),50,minimumo,maximumo))
             histoffset[-1].GetXaxis().SetTitle("Offset")
-			histoffset[-1].GetYaxis().SetTitle("Frequency")
-            c2[-1].SetLogY()
+            histoffset[-1].GetYaxis().SetTitle("Frequency")
+            histoffset[-1].SetLogY()
             #Fills the histograms with the values fetched above
             for val in values:
                 slope , offset = val
