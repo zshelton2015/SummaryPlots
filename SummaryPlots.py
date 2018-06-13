@@ -14,6 +14,10 @@ def SummaryPlot(database):
     fcard = []
     frange= []
     fshunt= []
+    c = []
+    c2 =[]
+    histoffset = []
+    histshunt = []
     maximum = 0
     minimum = 0
     FailedCards = {'Card':fcard,'Ranges':frange,'Shunts':fshunt}
