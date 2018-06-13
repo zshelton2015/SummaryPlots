@@ -38,8 +38,8 @@ def SummaryPlot(database):
             #Mashe a Canvas and histogram for the shunts that's added to the list
             c.append(TCanvas("%s SLOPE Shunt %.1f  -  Range %i"%(name,sh,r),"histo"))
             histshunt.append(TH1D("%s SLOPE - Shunt %.1f - Range %i"%(name,sh,r), "%s Shunt %.1f - Range %i"%(name,sh,r),100,minimums,maximums))
-            histshunt[-1].SetXTitle("Slope")
-            histshunt[-1].GetYTitle("Frequency")
+            histshunt[-1].GetXaxis().SetTitle("Slope")
+            histshunt[-1].GetYaxis().SetTitle("Frequency")
             c[-1].SetLogY()
             maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;"%(r,sh)).fetchall()
             maximumo, minimumo = maxmin[0]
@@ -48,8 +48,8 @@ def SummaryPlot(database):
             #Make a Canvas and histogram for the offset that's added to the list
             c2.append(TCanvas("%s OFFSET Shunt %.1f Range %i"%(name,sh,r) ,"histo"))
             histoffset.append(TH1D("%s OFFSET  Shunt %.1f - Range %d"%(name,sh,r), "%s Shunt %.1f - Range %d"%(name,sh,r),50,minimumo,maximumo))
-            histoffset[-1].SetXTitle("Offset")
-            histoffset[-1].GetYTitle("Frequency")
+            histoffset[-1].GetXaxis().SetTitle("Offset")
+            histoffset[-1].GetYaxis().SetTitle("Frequency")
             c2[-1].SetLogY()
             #Fills the histograms with the values fetched above
             for val in values:
