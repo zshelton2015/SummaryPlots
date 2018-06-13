@@ -26,9 +26,9 @@ def SummaryPlot(database):
             #Fetch the values of slope and offset for the corresponding shunt and range
             values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;"%(sh,r)).fetchall()
             #Fetch Max and minimum values
-            maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(sh,r)).fetchall()
+            (maximum,minimum) = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(sh,r)).fetchall()
             #SQLITE3 values are tuples, this turns the tuple into 2 numbers that can be used for ROOT arguments
-            maximum , minimum = maxmin[0]
+            #maximum , minimum = maxmin[0]
             maximums = maximum+(.1)
             minimums = minimum -(.1)
             #Mashe a Canvas and histogram for the shunts that's added to the list
