@@ -7,8 +7,8 @@ import sqlite3
 from ROOT import *
 import pprint
 def SummaryPlot(database):
-bins = [0,1,2,3]
-shunts = [1,1.5,2,3,4,5,6,7,8,9,10,11,11.5]
+    bins = [0,1,2,3]
+    shunts = [1,1.5,2,3,4,5,6,7,8,9,10,11,11.5]
     xyz1234 = sqlite3.connect(database)
     cursor = xyz1234.cursor()
     fcard = []
