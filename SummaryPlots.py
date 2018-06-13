@@ -40,7 +40,7 @@ def SummaryPlot(database):
             histshunt.append(TH1D("%s SLOPE - Shunt %.1f - Range %i"%(name,sh,r), "%s Shunt %.1f - Range %i"%(name,sh,r),100,minimums,maximums))
             histshunt[-1].GetXaxis().SetTitle("Slope")
             histshunt[-1].GetYaxis().SetTitle("Frequency")
-            histshunt[-1].SetLogY()
+            c[-1].SetLogY()
             maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;"%(r,sh)).fetchall()
             maximumo, minimumo = maxmin[0]
             maximumo+=sh*5
@@ -50,7 +50,7 @@ def SummaryPlot(database):
             histoffset.append(TH1D("%s OFFSET  Shunt %.1f - Range %d"%(name,sh,r), "%s Shunt %.1f - Range %d"%(name,sh,r),50,minimumo,maximumo))
             histoffset[-1].GetXaxis().SetTitle("Offset")
             histoffset[-1].GetYaxis().SetTitle("Frequency")
-            histoffset[-1].SetLogY()
+            c2[-1].SetLogY()
             #Fills the histograms with the values fetched above
             for val in values:
                 slope , offset = val
