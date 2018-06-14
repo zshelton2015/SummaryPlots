@@ -43,7 +43,11 @@ def SummaryPlot(database):
             c.append(TCanvas("Card %s Shunt %.1f  -  Range %i" % (name, sh, r), "histo"))
             c[-1].Divide(2,1)
             c[-1].cd(1)
+<<<<<<< HEAD
             histshunt.append(TH1D("SLOPE Sh: %.1f - R: %i" %(sh, r),
+=======
+            histshunt.append(TH1D("%s SLOPE - Shunt %.1f - Range %i" % (name, sh, r),
+>>>>>>> a6c6cd56da1681e017d19708875b242d932a6bef
                                   "%s Shunt %.1f - Range %i" % (name, sh, r), 100, minimums, maximums))
             histshunt[-1].SetTitle("OFFSET SH: %.1f R: %d"%(sh,r))
             histshunt[-1].GetXaxis().SetTitle("Slope")
@@ -57,7 +61,11 @@ def SummaryPlot(database):
             # Make a Canvas and histogram for the offset that's added to the list
             #c2.append(TCanvas("%s OFFSET Shunt %.1f Range %i" % (name, sh, r), "histo"))
             c[-1].cd(2)
+<<<<<<< HEAD
             histoffset.append(TH1D("SHUNT Sh: %.1f - R: %i" %(sh, r)),
+=======
+            histoffset.append(TH1D("%s OFFSET  Shunt %.1f - Range %d" % (name, sh, r),
+>>>>>>> a6c6cd56da1681e017d19708875b242d932a6bef
                                    "%s Shunt %.1f - Range %d" % (name, sh, r), 50, minimumo, maximumo))
             histoffset[-1].SetTitle("OFFSET SH: %.1f R: %d"%(sh,r))
             histoffset[-1].GetXaxis().SetTitle("Offset")
