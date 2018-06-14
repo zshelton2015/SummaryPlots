@@ -1,6 +1,6 @@
 import SummaryPlots
 
-SummaryPlots.SummaryPlot("qieCalibrationParameters_0xa6000000_0xeabacd70.db")
+print SummaryPlots.SummaryPlot("qieCalibrationParameters_0xa6000000_0xeabacd70.db")
 
 
 #from SummaryPlots import SummaryPlot
