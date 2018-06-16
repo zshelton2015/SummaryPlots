@@ -124,7 +124,7 @@ for data in databaseNames:
 #Cycling through each total shunt histogram   #
 #Each max and min from each range is test     #
 #If a max or min is outside of a range from   #
-#The mean then the value is flagged and		  #
+#the mean then the value is flagged and		  #
 # stored in a list							  #
 ###############################################
 	count=0
@@ -132,6 +132,8 @@ for data in databaseNames:
 		theoretical = .3/shunts[count]
 		for rang in bins:
 			maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;"%(rang,shunts[count])).fetchall()
+
+
 			maximums , minimums = maxmin[0]
 			if maximums>(theoretical+(theoretical*.12)) or minimums<((theoretical-(theoretical*.12))):
 				#These are the allowance from the total mean
