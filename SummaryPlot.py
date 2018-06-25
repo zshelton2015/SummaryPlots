@@ -1,6 +1,6 @@
 # Summary Plots For QIE Calibration
 # Zach Shelton
-##Located in Desktop/SummaryPlots
+#Located in Desktop/SummaryPlots
 # Updated: 6/6/18 6:00PM CDT
 # Imported Packages
 import sqlite3
@@ -9,13 +9,13 @@ import pprint
 import glob
 import os
 import sys
+import argparse
 gROOT.SetBatch(True)
 
 
-plotBoundaries_slope = [0.28,0.33]
+plotBoundaries_slope = [0.28, 0.33]
 
-plotBoundaries_offset = [1,16,100,800]
-                          
+plotBoundaries_offset = [1, 16, 100, 800]
 
 
 def SummaryPlot(database, arg, date, run):
@@ -37,112 +37,112 @@ def SummaryPlot(database, arg, date, run):
     failure = False
     FailedCards = {'Card': fcard, 'Ranges': frange, 'Shunts': fshunt}
     databases = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(date, run))
-    if not os.path.exists("data/%s/Run_%s/SummaryPlots"%(date,run)):
-        os.makedirs("data/%s/Run_%s/SummaryPlots"%(date,run))
+    if not os.path.exists("data/%s/Run_%s/SummaryPlots"%(date, run)):
+        os.makedirs("data/%s/Run_%s/SummaryPlots"%(date, run))
     if not os.path.exists("data/%s/Run_%s/SummaryPlots/ImagesOutput"%(date,run)):
         os.makedirs("data/%s/Run_%s/SummaryPlots/ImagesOutput"%(date,run))
     if not os.path.exists("data/%s/Run_%s/SummaryPlots/Log"%(date,run)):
         os.makedirs("data/%s/Run_%s/SummaryPlots/Log"%(date,run))
-    if not os.path.exists("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date,run)):
-        os.makedirs("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date,run))
+    if not os.path.exists("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date, run)):
+        os.makedirs("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date, run))
     TGaxis.SetMaxDigits(3)
-    if arg == 't':
-        output = TFile("data/%s/Run_%s/SummaryPlots/Summary_Of_Run.root"%(date,run),"recreate")
-        for j in range(0,len(shunts)):
-            #totalshunts.append(TCanvas("Total Shunts for %.1f"%shunts[j],"histo"))
-            c.append(TCanvas("SLOPE AT SHUNT - %.1f" %shunts[j], "histo"))
-            totalhist.append(TH1D("Total Shunts for %.1f"%shunts[j],"Total Shunts for %.1f"%shunts[j],200, 0 , .5))
-        for data in databases:
-            xyz1234 = sqlite3.connect(data)
-            cursor = xyz1234.cursor()
-            name = data[data.find("_0x"):data.find(".")]
-            countbin= 0
-            for r in bins:
-                counter= 0
-                for sh in shunts:
-                    # Fetch the values of slope and offset for the corresponding shunt and range
-                    values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;" % (r, sh)).fetchall()
-                    gPad.SetLogy(1)
-                    for val in values:
-                        slope, offset = val
-                        totalhist[counter].Fill(slope)
-                        totalhist[counter].Draw()
-                    totalhist[counter].Write()
-                    maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
-                    maximum, minimum = maxmin[0]
-                    if sh == 1:
-                        if 0.283 > minimum or maximum > 0.326:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 1.5:
-                        if 0.185 > minimum or maximum > 0.22:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 2:
-                        if 0.143 > minimum or maximum > 0.168:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 3:
-                        if 0.095 > minimum or maximum > 0.115:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 4:
-                        if 0.072 > minimum or maximum > 0.085:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 5:
-                        if 0.0575 > minimum or maximum > 0.068:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 6:
-                        if 0.048 > minimum or maximum > 0.064:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 7:
-                        if 0.041 > minimum or maximum > 0.05:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 8:
-                        if 0.036 > minimum or maximum > 0.044:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 9:
-                        if 0.032 > minimum or maximum > 0.039:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 10:
-                        if 0.029 > minimum or maximum > 0.035:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 11:
-                        if 0.026 > minimum or maximum > 0.032:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 11.5:
-                        if 0.025 > minimum or maximum > 0.031:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if failure:
-                        FailedCards['Card'].append(name)
-                        FailedCards['Shunts'].append(sh)
-                        FailedCards['Ranges'].append(r)
-#                    c[counter].Update()
-#                    c[counter].SaveAs("SummaryPlotsOutput/TOTAL_SHUNT_%.1f_.png"%(sh))
-                    counter+=1
-            outputText = open("%s_Failed_Shunts_and_Ranges.txt"%name,"w+")
-            outputText.write(str(FailedCards))
-            outputText.close()
-#        totalbins[countbin].Write()
-#        countbin+=1
-        for tot in range(0, len(totalhist)-1):
-            totalhist[tot].Draw()
-            totalhist[tot].Write()
-            c[-1].Update()
-            c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/TotalPlots/TOTAL_SHUNT_%.1f_.png"%(shunts[tot]))
-            output.Close()
-        return "Summary Plots Made!"
+#     if arg == 't':
+#         output = TFile("data/%s/Run_%s/SummaryPlots/Summary_Of_Run.root"%(date,run),"recreate")
+#         for j in range(0,len(shunts)):
+#             #totalshunts.append(TCanvas("Total Shunts for %.1f"%shunts[j],"histo"))
+#             c.append(TCanvas("SLOPE AT SHUNT - %.1f" %shunts[j], "histo"))
+#             totalhist.append(TH1D("Total Shunts for %.1f"%shunts[j],"Total Shunts for %.1f"%shunts[j],200, 0 , .5))
+#         for data in databases:
+#             xyz1234 = sqlite3.connect(data)
+#             cursor = xyz1234.cursor()
+#             name = data[data.find("_0x"):data.find(".")]
+#             countbin= 0
+#             for r in bins:
+#                 counter= 0
+#                 for sh in shunts:
+#                     # Fetch the values of slope and offset for the corresponding shunt and range
+#                     values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;" % (r, sh)).fetchall()
+#                     gPad.SetLogy(1)
+#                     for val in values:
+#                         slope, offset = val
+#                         totalhist[counter].Fill(slope)
+#                         totalhist[counter].Draw()
+#                     totalhist[counter].Write()
+#                     maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
+#                     maximum, minimum = maxmin[0]
+#                     if sh == 1:
+#                         if 0.283 > minimum or maximum > 0.326:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 1.5:
+#                         if 0.185 > minimum or maximum > 0.22:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 2:
+#                         if 0.143 > minimum or maximum > 0.168:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 3:
+#                         if 0.095 > minimum or maximum > 0.115:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 4:
+#                         if 0.072 > minimum or maximum > 0.085:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 5:
+#                         if 0.0575 > minimum or maximum > 0.068:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 6:
+#                         if 0.048 > minimum or maximum > 0.064:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 7:
+#                         if 0.041 > minimum or maximum > 0.05:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 8:
+#                         if 0.036 > minimum or maximum > 0.044:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 9:
+#                         if 0.032 > minimum or maximum > 0.039:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 10:
+#                         if 0.029 > minimum or maximum > 0.035:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 11:
+#                         if 0.026 > minimum or maximum > 0.032:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if sh == 11.5:
+#                         if 0.025 > minimum or maximum > 0.031:
+#                             print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+#                             failure = True
+#                     if failure:
+#                         FailedCards['Card'].append(name)
+#                         FailedCards['Shunts'].append(sh)
+#                         FailedCards['Ranges'].append(r)
+# #                    c[counter].Update()
+# #                    c[counter].SaveAs("SummaryPlotsOutput/TOTAL_SHUNT_%.1f_.png"%(sh))
+#                     counter+=1
+#             outputText = open("%s_Failed_Shunts_and_Ranges.txt"%name,"w+")
+#             outputText.write(str(FailedCards))
+#             outputText.close()
+# #        totalbins[countbin].Write()
+# #        countbin+=1
+#         for tot in range(0, len(totalhist)-1):
+#             totalhist[tot].Draw()
+#             totalhist[tot].Write()
+#             c[-1].Update()
+#             c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/TotalPlots/TOTAL_SHUNT_%.1f_.png"%(shunts[tot]))
+#             output.Close()
+#         return "Summary Plots Made!"
 #################################################################################################################
-    elif (arg == 'a'):
+    if (arg == 'a'):
         xyz1234 = sqlite3.connect(database)
         cursor = xyz1234.cursor()
         name = database[database.find("_0x"):database.find(".")]
@@ -152,19 +152,16 @@ def SummaryPlot(database, arg, date, run):
         for r in bins:
             counter=0
             for sh in shunts:
-		if (r == 2 or r == 3) and (sh != 1):
+                if (r == 2 or r == 3) and (sh != 1):
                     continue
                 # Fetch the values of slope and offset for the corresponding shunt and range
                 values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f;" % (r, sh)).fetchall()
+
                 # Fetch Max and minimum values
-
-                
-
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
-                maximum , minimum = maxmin[0]
-
-                maximums  = max(plotBoundaries_slope[1]/sh, maximum+0.01)
-                minimums  = min(plotBoundaries_slope[0]/sh, minimum-0.01)
+                maximum, minimum = maxmin[0]
+                maximums = max(plotBoundaries_slope[1]/sh, maximum+0.01)
+                minimums = min(plotBoundaries_slope[0]/sh, minimum-0.01)
 
                 # if maxmin[0]==(None,None):
                 #     maximums = .5
@@ -185,10 +182,10 @@ def SummaryPlot(database, arg, date, run):
                 maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
 
                 maximum, minimum = maxmin[0]
-                
+
                 maximumo  = max(plotBoundaries_offset[r], maximum)
                 minimumo  = min(-1*plotBoundaries_offset[r], minimum)
-                
+
                 # if maxmin[0]>(offsetbin[r],-offsetbin[r]):
                 #     maximumo = offsetbin[r]
                 #     minimumo = -offsetbin[r]
@@ -212,10 +209,10 @@ def SummaryPlot(database, arg, date, run):
                     c[-1].cd(2)
                     histoffset[-1].Fill(offset)
                     histoffset[-1].Draw()
-                #Write the histograms to the file, saving them for later
-                #histshunt[-1].Draw()
-                #histoffset[-1].Draw()
-                #c2[-1].Write()
+                # Write the histograms to the file, saving them for later
+                # histshunt[-1].Draw()
+                # histoffset[-1].Draw()
+                # c2[-1].Write()
                 c[-1].Update()
                 c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%.1f_RANGE_%i.png"%(date, run, name, sh, r))
                 c[-1].Write()
@@ -382,25 +379,34 @@ def shuntboundaries(tuple1,sh):
             minis = .031
     return maxis,minis
 
+uid = []
 dbnames = []
 arg = ''
+
+parser = argparse.ArgumentParser(description='This produces Sumamry Plots for runs')
+
+parser.add_argument('-a','--all', action="store_true", dest='all', default=False)
+parser.add_argument('-f','--files', action="append", dest = 'dbnames')
+parser.add_argument('-u','--uniqueID', action="append", dest = 'uid')
+parser.add_argument('-t','--total' action="store_true", dest="total", default = False)
+
 #ex: python SummaryPlots.py -c **.db
-if (sys.argv[1] == '-t' or sys.argv[1] == '-total'):
-    dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%())
-    arg = 't'
-    data = 'eh'
-    print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
-    print "Completed Total"	
-elif sys.argv[1]=='-a':
-    arg = 'a'
-    dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
-    for data in dbnames:
-        print data
-        print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
-    print "Completed All"	
-else:
-     dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
-     database = sys.argv[1]
-     print SummaryPlot(database, arg, sys.argv[2], sys.argv[3])
-     print "Completed N?A"	    
+# if (sys.argv[1] == '-t' or sys.argv[1] == '-total'):
+#     dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%())
+#     arg = 't'
+#     data = 'eh'
+#     print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
+#     print "Completed Total"
+# elif sys.argv[1]=='-a':
+#     arg = 'a'
+#     dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
+#     for data in dbnames:
+#         print data
+#         print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
+#     print "Completed All"
+# else:
+#      dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
+#      database = sys.argv[1]
+#      print SummaryPlot(database, arg, sys.argv[2], sys.argv[3])
+#      print "Completed N?A"
 #from SummaryPlots import SummaryPlot
