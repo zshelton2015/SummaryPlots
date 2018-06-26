@@ -154,7 +154,7 @@ def SummaryPlot(options):
                     maximums = max(plotBoundaries_slope[1]/sh, maximum+0.01)
                     minimums = min(plotBoundaries_slope[0]/sh, minimum-0.01)
                     #Creates Canvases for each Shunt and Range(TH1D)
-                    c.append(TCanvas("Card %s Shunt %.1f  -  Range %i" % (name, sh, r), "histo"))
+                    c.append(TCanvas("Shunt %.1f  -  Range %i" % (sh, r), "histo"))
                     #Create Histograms for the shunt slopes
                     histshunt.append(TH1D("SLOPE Sh: %.1f " %sh,"SLOPE Sh: %.1f " %sh, 100, minimums, maximums))
                     histshunt[-1].SetTitle("SLOPE SH: %.1f "%(sh))
