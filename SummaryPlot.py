@@ -27,7 +27,7 @@ def SummaryPlot(options):
 
     #Bin Definitions
     bins = [0, 1, 2, 3]
-    
+
     shunts = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11.5]
 
     #Failing Card Lists
@@ -77,7 +77,7 @@ def SummaryPlot(options):
     #if (options.all):
     for nameList in idlist:
         name = nameList[0]
-        
+
         if not options.uid is None:
             if name not in options.uid:
                 continue
@@ -140,7 +140,7 @@ def SummaryPlot(options):
                 # c2[-1].Write()
                 c[-1].Update()
                 #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
-                
+
                 c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
                 c[-1].Write()
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
@@ -358,17 +358,13 @@ if __name__ == "__main__":
     parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
     parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
+    parser.add_argument('-help','--help', action="store_true",dest = 'help',default=False)
     options = parser.parse_args()
     date = options.date[0]
     run = options.run[0]
     all = options.all
     total = options.all
-    if len(dbnames)!=0:
-        arg = 'f'
-    elif len(uid)!=0:
-        arg = 'u'
-    elif all:
-        arg = 'a'
-    elif total:
-        arg = 't'
-    print SummaryPlot(options)
+    if options.help:
+        parser.print_help()
+    else:
+        SummaryPlot(options)
