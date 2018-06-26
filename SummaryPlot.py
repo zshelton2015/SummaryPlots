@@ -61,7 +61,7 @@ def SummaryPlot(options):
 
 
     #Set Axes Digits
-    if(options.all or len(options.uid)!=0):
+    if(options.all or not options.uid is None):
         files = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(date,run))
     elif(len(options.dbnames) != 0):
         files = []
@@ -77,7 +77,8 @@ def SummaryPlot(options):
     #if (options.all):
     for nameList in idlist:
         name = nameList[0]
-        if len(options.uid) != 0:
+        
+        if not options.uid is None:
             if name not in options.uid:
                 continue
         if not os.path.exists("data/%s/Run_%s/SummaryPlots"%(date, run)):
@@ -206,7 +207,48 @@ def SummaryPlot(options):
             outputText = open("data/%s/Run_%s/SummaryPlots/Failed_Shunts_and_Ranges.txt"%(date,run),"w+")
             outputText.write(str(FailedCards))
             outputText.close()
-    #return "Summary Plots Made!"
+    if (options.total):
+        name = nameList[0]
+        if not os.path.exists("data/%s/Run_%s/SummaryPlots"%(date, run)):
+            os.makedirs("data/%s/Run_%s/SummaryPlots"%(date,run))
+        if not os.path.exists("data/%s/Run_%s/SummaryPlots/TotalOutput"%(date, run)):
+            os.makedirs("data/%s/Run_%s/SummaryPlots/TotalOutput"%(date,run))
+            # Modify rootout change title of output ROOT file
+        rootout = TFile("data/%s/Run_%s/SummaryPlots/summary_plot_total.root" %(date, run), "recreate")
+        for r in bins:
+            for sh in shunts:
+                if (r == 2 or r == 3) and (sh != 1):
+                    continue
+                # Fetch the values of slope and offset for the corresponding shunt and range
+                values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f ;" % (r, sh)).fetchall()
+
+                # Fetch Max and minimum values for slope of shunt
+                maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
+                maximum, minimum = maxmin[0]
+                maximums = max(plotBoundaries_slope[1]/sh, maximum+0.01)
+                minimums = min(plotBoundaries_slope[0]/sh, minimum-0.01)
+                #Creates Canvases for each Shunt and Range(TH1D)
+                c.append(TCanvas("Shunt %.1f  -  Range %i" % (sh, r), "histo"))
+                #Create Histograms for the shunt slopes
+                histshunt.append(TH1D("SLOPE_Sh:_%.1f_RANGE_r:_%d" %(sh,r),"SLOPE Sh: %.1f RANGE r: %d" %(sh,r), 100, minimums, maximums))
+                #histshunt[-1].SetTitle("SLOPE SH: %.1f "%(sh))
+                histshunt[-1].GetXaxis().SetTitle("Slope")
+                histshunt[-1].GetYaxis().SetTitle("Frequency")
+                gPad.SetLogy(1)
+                # Fills the histograms with the values fetched above
+                for val in values:
+                    slope, offset = val
+                    c[-1].cd(1)
+                    histshunt[-1].Fill(slope)
+                    histshunt[-1].Draw()
+                # Write the histograms to the file, saving them for later
+                # histshunt[-1].Draw()
+                # histoffset[-1].Draw()
+                # c2[-1].Write()
+                c[-1].Update()
+                #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
+                c[-1].Print("data/%s/Run_%s/SummaryPlots/TotalOutput/Total_SHUNT_%s_RANGE_%i.png"%(date, run, str(sh).replace(".",""), r))
+                c[-1].Write()
 
 def shuntboundaries(tuple1,sh):
     maxi , mini = tuple1
