@@ -126,7 +126,9 @@ def SummaryPlot(date, run, arg):
                     # histoffset[-1].Draw()
                     # c2[-1].Write()
                     c[-1].Update()
-                    c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%.1f_RANGE_%i.png"%(date, run, name, sh, r))
+                    #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
+                    
+                    c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
                     c[-1].Write()
                     maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
                     maximum , minimum = maxmin[0]
