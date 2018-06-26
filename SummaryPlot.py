@@ -1,4 +1,4 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python
 # Summary Plots For QIE Calibration
 # Zach Shelton
 #Located in Desktop/SummaryPlots
@@ -11,6 +11,7 @@ import glob
 import os
 import sys
 import argparse
+from MergeDatabases import MergeDatabases
 gROOT.SetBatch(True)
 
 
@@ -54,12 +55,13 @@ def SummaryPlot(date, run, arg):
 
 
     #Set Axes Digits
+    files = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(date,run))
+    mergedname = MergeDatabases(files, "data/%s/Run_%s/"%(date, run))
     xyz1234 = sqlite3.connect("data/%s/Run_%s/%s.db"%(date, run, mergedname))
     cursor = xyz1234.cursor()
     TGaxis.SetMaxDigits(3)
-    mergedname = MergeDatabases(files, "data/%s/Run_%s/"%(date, run))
-    files = cursor.excute("Select distinct runDirectory from qieshuntparams").Fetchall()
-    idlist = cursor.excute("Select distinct id from qieshuntparams").Fetchall()
+    #files = cursor.excute("Select distinct runDirectory from qieshuntparams").Fetchall()
+    idlist = cursor.execute("Select distinct id from qieshuntparams").Fetchall()
     if (arg == 'a'):
         for name in idlist:
             if not os.path.exists("data/%s/Run_%s/SummaryPlots"%(date, run)):
@@ -309,4 +311,4 @@ if __name__ == "__main__":
         arg = 'a'
     elif total:
         arg = 't'
-    # print SummaryPlot(date , run, arg)
+    print SummaryPlot(date , run, arg)
