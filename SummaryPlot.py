@@ -20,7 +20,7 @@ plotBoundaries_slope = [0.28, 0.33]
 plotBoundaries_offset = [1, 16, 100, 800]
 
 #FINDING ERROR PERCENTAGE
-thshunt= .33
+thshunt= .30
 THRESHOLD = .1
 
 
