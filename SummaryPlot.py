@@ -289,7 +289,6 @@ dbnames = []
 arg = ''
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='This produces Sumamry Plots for runs')
-
     parser.add_argument('-a','--all', action="store_true", dest='all', default=False, help = "Creates plots for all files and a combined database")
     parser.add_argument('-f','--files', action="append", dest = 'dbnames', help  = "Creates Summary Plots for a  file(s) list with -f [FILENAME] -f [FILENAME]")
     parser.add_argument('-u','--uniqueID', action="append", dest = 'uid', help  = "Creates Summary Plots for a  file(s) based on Unique IDs list with -u [UniqueID] -u [UniqueID]")
@@ -297,30 +296,16 @@ if __name__ == "__main__":
     parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
     options = parser.parse_args()
-
     date = options.date[0]
     run = options.run[0]
-
-    print date, run
-    #print SummaryPlot(date,run,'a')
-
-#ex: python SummaryPlots.py -c **.db
-# if (sys.argv[1] == '-t' or sys.argv[1] == '-total'):
-#     dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%())
-#     arg = 't'
-#     data = 'eh'
-#     print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
-#     print "Completed Total"
-# elif sys.argv[1]=='-a':
-#     arg = 'a'
-#     dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
-#     for data in dbnames:
-#         print data
-#         print SummaryPlot(data, arg, sys.argv[2], sys.argv[3])
-#     print "Completed All"
-# else:
-#      dbnames = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(sys.argv[2],sys.argv[3]))
-#      database = sys.argv[1]
-#      print SummaryPlot(database, arg, sys.argv[2], sys.argv[3])
-#      print "Completed N?A"
-#from SummaryPlots import SummaryPlot
+    all = options.all
+    total = options.all
+    if len(dbnames)!=0:
+        arg = 'f'
+    elif len(uid)!=0:
+        arg = 'u'
+    elif all:
+        arg = 'a'
+    elif total:
+        arg = 't'
+    # print SummaryPlot(date , run, arg)
