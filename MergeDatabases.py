@@ -6,10 +6,10 @@
 import sqlite3
 from shutil import copyfile
 
-def MergeDatabases(files,dirName):
-    copyfile(files[0],"".join([dirName,"mergedDatabase.db"]))
-    #copyfile(files[0],"mergedDatabase.db")
-    outDatabase = sqlite3.connect("".join([dirName,"mergedDatabase.db"]))
+def MergeDatabases(files,dirName="",outName="mergedDatabase.db"):
+    copyfile(files[0],"".join([dirName,outName]))
+    #copyfile(files[0],outName)
+    outDatabase = sqlite3.connect("".join([dirName,outName]))
     outCursor = outDatabase.cursor()
     for f in files[1:]:
         tmp = sqlite3.connect(f)
