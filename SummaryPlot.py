@@ -73,11 +73,7 @@ def SummaryPlot(options):
             files.append(glob.glob("data/%s/Run_%s/%s"%(date,run,f))[0])
             print files
     MergeDatabases(files, "data/%s/Run_%s/"%(date, run),"MergedDatabaseRun%s.db"%run)
-<<<<<<< HEAD
     xyz1234 = sqlite3.connect("data/%s/Run_%s/MergedDatabaseRun%s.db"%(date, run,run))
-=======
-    xyz1234 = sqlite3.connect("data/%s/Run_%s/mergedDatabase.db"%(date, run))
->>>>>>> 27e05faccc85fbefae8afb5e6bdefe2ff21327ef
     cursor = xyz1234.cursor()
     TGaxis.SetMaxDigits(3)
     #files = cursor.excute("Select distinct runDirectory from qieshuntparams").Fetchall()
