@@ -23,14 +23,14 @@ plotBoundaries_offset = [1, 16, 100, 800]
 def SummaryPlot(date, run, arg):
     #Bin Definitions
     bins = [0, 1, 2, 3]
-    
-    shunts = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11.5]
-    #Failing Card Lists
-
+    #FailedCards Def:
+    failure = False
     fcard = []
     frange = []
     fshunt = []
-
+    origshunt = .33
+    FailedCards = {'Card': fcard, 'Ranges': frange, 'Shunts': fshunt}
+    shunts = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11.5]
     #Canvases
 
     c = []
@@ -49,11 +49,8 @@ def SummaryPlot(date, run, arg):
     #Max - min Variables
     maximum = 0
     minimum = 0
-    #Failure
-    failure = False
-    FailedCards = {'Card': fcard, 'Ranges': frange, 'Shunts': fshunt}
-
-
+    #Failure Log File
+    failurelog = "data/%s/Run_%s/SummaryPlots/Failed_Shunts_and_Ranges.txt"%(date,run)
     #Set Axes Digits
     files = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(date,run))
     MergeDatabases(files, "data/%s/Run_%s/"%(date, run))
@@ -129,70 +126,74 @@ def SummaryPlot(date, run, arg):
                     c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%.1f_RANGE_%i.png"%(date, run, name, sh, r))
                     c[-1].Write()
                     maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
-                    maximum , minimum = maxmin[0]
-                    if sh == 1:
-                        if 0.283 > minimum or maximum > 0.326:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 1.5:
-                        if 0.185 > minimum or maximum > 0.22:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 2:
-                        if 0.143 > minimum or maximum > 0.168:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 3:
-                        if 0.095 > minimum or maximum > 0.115:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 4:
-                        if 0.072 > minimum or maximum > 0.085:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 5:
-                        if 0.0575 > minimum or maximum > 0.068:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 6:
-                        if 0.048 > minimum or maximum > 0.064:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 7:
-                        if 0.041 > minimum or maximum > 0.05:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 8:
-                        if 0.036 > minimum or maximum > 0.044:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 9:
-                        if 0.032 > minimum or maximum > 0.039:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 10:
-                        if 0.029 > minimum or maximum > 0.035:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 11:
-                        if 0.026 > minimum or maximum > 0.032:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if sh == 11.5:
-                        if 0.025 > minimum or maximum > 0.031:
-                            print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
-                            failure = True
-                    if failure:
+                    if passfail(sh,maxmin[0]):
                         FailedCards['Card'].append(name)
                         FailedCards['Shunts'].append(sh)
                         FailedCards['Ranges'].append(r)
+                    # if sh == 1:
+                    #     if 0.283 > minimum or maximum > 0.326:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 1.5:
+                    #     if 0.185 > minimum or maximum > 0.22:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 2:
+                    #     if 0.143 > minimum or maximum > 0.168:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 3:
+                    #     if 0.095 > minimum or maximum > 0.115:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 4:
+                    #     if 0.072 > minimum or maximum > 0.085:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 5:
+                    #     if 0.0575 > minimum or maximum > 0.068:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 6:
+                    #     if 0.048 > minimum or maximum > 0.064:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 7:
+                    #     if 0.041 > minimum or maximum > 0.05:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 8:
+                    #     if 0.036 > minimum or maximum > 0.044:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 9:
+                    #     if 0.032 > minimum or maximum > 0.039:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 10:
+                    #     if 0.029 > minimum or maximum > 0.035:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 11:
+                    #     if 0.026 > minimum or maximum > 0.032:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if sh == 11.5:
+                    #     if 0.025 > minimum or maximum > 0.031:
+                    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+                    #         failure = True
+                    # if failure:
+                    #     FailedCards['Card'].append(name)
+                    #     FailedCards['Shunts'].append(sh)
+                    #     FailedCards['Ranges'].append(r)
                 countbin = 0
             rootout.Close()
             if len(FailedCards)>1:
                 outputText = open("data/%s/Run_%s/SummaryPlots/Failed_Shunts_and_Ranges.txt"%(date,run),"w+")
                 outputText.write(str(FailedCards))
                 outputText.close()
-    #return "Summary Plots Made!"
+                print "WARNING CARD %s HAS ERROR(S) PLEASE CHECK LOG FOR INFO"%name
+    return "Summary Plots Made!"
 
 def shuntboundaries(tuple1,sh):
     maxi , mini = tuple1
@@ -290,6 +291,115 @@ def shuntboundaries(tuple1,sh):
             maxis = .025
             minis = .031
     return maxis,minis
+def passfail(sh,tuple1):
+    failure = False
+    origshunt = .33
+    maximum, minimum = tuple1
+
+    if sh == 1:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+            failure = True
+    if sh == 1.5:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 2:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 3:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 4:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 5:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 6:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 7:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 8:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 9:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 10:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 11:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    if sh == 11.5:
+        if (origshunt/sh)-(origshunt/sh)*.1 > minimum or maximum > (origshunt/sh)+(origshunt/sh)*.1:
+
+            failure = True
+    return failure
+    # if sh == 1:
+    #     if 0.283 > minimum or maximum > 0.326:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 1.5:
+    #     if 0.185 > minimum or maximum > 0.22:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 2:
+    #     if 0.143 > minimum or maximum > 0.168:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 3:
+    #     if 0.095 > minimum or maximum > 0.115:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 4:
+    #     if 0.072 > minimum or maximum > 0.085:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 5:
+    #     if 0.0575 > minimum or maximum > 0.068:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 6:
+    #     if 0.048 > minimum or maximum > 0.064:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 7:
+    #     if 0.041 > minimum or maximum > 0.05:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 8:
+    #     if 0.036 > minimum or maximum > 0.044:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 9:
+    #     if 0.032 > minimum or maximum > 0.039:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 10:
+    #     if 0.029 > minimum or maximum > 0.035:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 11:
+    #     if 0.026 > minimum or maximum > 0.032:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
+    # if sh == 11.5:
+    #     if 0.025 > minimum or maximum > 0.031:
+    #         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
+    #         failure = True
 ###################################################################################
 uid = []
 dbnames = []
