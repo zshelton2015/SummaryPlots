@@ -19,6 +19,10 @@ plotBoundaries_slope = [0.28, 0.33]
 
 plotBoundaries_offset = [1, 16, 100, 800]
 
+#FINDING ERROR PERCENTAGE
+thshunt= .33
+THRESHOLD = .1
+
 
 def SummaryPlot(options):
     # Get required arguments from options
@@ -146,55 +150,55 @@ def SummaryPlot(options):
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
                 maximum , minimum = maxmin[0]
                 if sh == 1:
-                    if 0.283 > minimum or maximum > 0.326:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 1.5:
-                    if 0.185 > minimum or maximum > 0.22:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 2:
-                    if 0.143 > minimum or maximum > 0.168:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 3:
-                    if 0.095 > minimum or maximum > 0.115:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 4:
-                    if 0.072 > minimum or maximum > 0.085:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 5:
-                    if 0.0575 > minimum or maximum > 0.068:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 6:
-                    if 0.048 > minimum or maximum > 0.064:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 7:
-                    if 0.041 > minimum or maximum > 0.05:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 8:
-                    if 0.036 > minimum or maximum > 0.044:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 9:
-                    if 0.032 > minimum or maximum > 0.039:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 10:
-                    if 0.029 > minimum or maximum > 0.035:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 11:
-                    if 0.026 > minimum or maximum > 0.032:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if sh == 11.5:
-                    if 0.025 > minimum or maximum > 0.031:
+                    if ((thshunt/sh)-(thshunt/sh)*THRESHOLD) > minimum or maximum > ((thshunt/sh)+(thshunt/sh)*THRESHOLD):
                         print "Card %s in Shunt %.1f in Range %i failed" % (name, sh, r)
                         failure = True
                 if failure:
@@ -358,13 +362,5 @@ if __name__ == "__main__":
     parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
     parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
-    parser.add_argument('-help','--help', action="store_true",dest = 'help',default=False)
     options = parser.parse_args()
-    date = options.date[0]
-    run = options.run[0]
-    all = options.all
-    total = options.all
-    if options.help:
-        parser.print_help()
-    else:
-        SummaryPlot(options)
+    SummaryPlot(options)
