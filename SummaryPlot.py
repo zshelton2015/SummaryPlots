@@ -50,6 +50,7 @@ def SummaryPlot(options):
     histoffset = []
     histshunt = []
     histslopes = []
+    histSlopeNvSlope1 = []
 
     #Total Histograms
 
@@ -100,16 +101,21 @@ def SummaryPlot(options):
                 if (r == 2 or r == 3) and (sh != 1):
                     continue
                 # Fetch the values of slope and offset for the corresponding shunt and range
-                values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f and id = '%s';" % (r, sh,name)).fetchall()
+                #values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f and id = '%s';" % (r, sh,name)).fetchall()
+                values = cursor.execute("select slope,offset, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
 
                 # Fetch Max and minimum values for slope of shunt
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
                 maximum, minimum = maxmin[0]
                 maximums = max(plotBoundaries_slope[1]/sh, maximum+0.01)
                 minimums = min(plotBoundaries_slope[0]/sh, minimum-0.01)
+                if sh == 1:
+                    maximum1 = maximums
+                    minimum1 = minimums
                 #Creates Canvases for each Shunt and Range(TH1D)
                 c.append(TCanvas("Card %s Shunt %.1f  -  Range %i" % (name, sh, r), "histo"))
                 c[-1].Divide(2,1)
+
                 c[-1].cd(1)
                 #Create Histograms for the shunt slopes
                 histshunt.append(TH1D("SLOPE Sh: %.1f - R: %i" %(sh, r),"%s Shunt %.1f - Range %i" % (name, sh, r), 100, minimums, maximums))
@@ -117,6 +123,12 @@ def SummaryPlot(options):
                 histshunt[-1].GetXaxis().SetTitle("Slope")
                 histshunt[-1].GetYaxis().SetTitle("Frequency")
                 gPad.SetLogy(1)
+
+                #Create 2D histogram of slope of shunt N vs slope of shunt 1
+                if(options.hist2D):
+                    histSlopeNvSlope1.append(TH2D("Slope_Shunt_%s_vs_Shunt_1_R_%i"%(str(sh).replace(".",""),r),"%s Slope of Shunt %.1f vs Shunt 1 - Range %i"%(name,sh,r),100,minimum1,maximum1,100,minimums,maximums))
+                    histSlopeNvSlope1[-1].GetXaxis().SetTitle("Shunt 1 Slope")
+                    histSlopeNvSlope1[-1].GetYaxis().SetTitle("Shunt %.1f Slope"%sh)
                 #Create Histograms for the Offsets
                 maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
                 maximum, minimum = maxmin[0]
@@ -131,13 +143,20 @@ def SummaryPlot(options):
                 gPad.SetLogy(1)
                 # Fills the histograms with the values fetched above
                 for val in values:
-                    slope, offset = val
+                    #slope, offset = val
+                    slope, offset, slSh1 = val
+                    #if r == 1 and sh == 1:
+                    #print "".join(["Slope: ",str(slope),"; Offset: ",str(offset)])#,"; Slope1: ",slSh1])
                     c[-1].cd(1)
                     histshunt[-1].Fill(slope)
                     histshunt[-1].Draw()
                     c[-1].cd(2)
                     histoffset[-1].Fill(offset)
                     histoffset[-1].Draw()
+                    #c[-1].cd(3)
+                    if(options.hist2D):
+                        histSlopeNvSlope1[-1].Fill(slSh1,slope)
+                    #histSlopeNvSlope1[-1].Draw()
                 # Write the histograms to the file, saving them for later
                 # histshunt[-1].Draw()
                 # histoffset[-1].Draw()
@@ -147,6 +166,10 @@ def SummaryPlot(options):
 
                 c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
                 c[-1].Write()
+                if(options.hist2D):
+                    histSlopeNvSlope1[-1].Write()
+
+
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
                 maximum , minimum = maxmin[0]
                 if sh == 1:
@@ -362,5 +385,6 @@ if __name__ == "__main__":
     parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
     parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
+    parser.add_argument('--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
     options = parser.parse_args()
     SummaryPlot(options)
