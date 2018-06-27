@@ -47,6 +47,7 @@ def SummaryPlot(options):
     histshunt = []
     histslopes = []
     histSlopeNvSlope1 = []
+    histShuntFactor = []
 
     #Total Histograms
 
@@ -125,6 +126,13 @@ def SummaryPlot(options):
                     histSlopeNvSlope1.append(TH2D("Slope_Shunt_%s_vs_Shunt_1_R_%i"%(str(sh).replace(".",""),r),"%s Slope of Shunt %.1f vs Shunt 1 - Range %i"%(name,sh,r),100,minimum1,maximum1,100,minimums,maximums))
                     histSlopeNvSlope1[-1].GetXaxis().SetTitle("Shunt 1 Slope")
                     histSlopeNvSlope1[-1].GetYaxis().SetTitle("Shunt %.1f Slope"%sh)
+                
+                #Create histogram of shunt factor
+                if(options.shFac):
+                    histShuntFactor.append(TH1D("ShuntFactor_Sh_%s_R_%.i"%(str(sh).replace(".",""),r),"Shunt Factor Shunt %.1f Range %i"%(sh,r),100,sh-1,sh+1))
+                    histShuntFactor[-1].GetXaxis().SetTitle("Shunt Factor")
+                    histShuntFactor[-1].GetYaxis().SetTitle("Frequency")
+
                 #Create Histograms for the Offsets
                 maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
                 maximum, minimum = maxmin[0]
@@ -152,6 +160,8 @@ def SummaryPlot(options):
                     #c[-1].cd(3)
                     if(options.hist2D):
                         histSlopeNvSlope1[-1].Fill(slSh1,slope)
+                    if(options.shFac):
+                        histShuntFactor[-1].Fill(slSh1/slope)
                     #histSlopeNvSlope1[-1].Draw()
                 # Write the histograms to the file, saving them for later
                 # histshunt[-1].Draw()
@@ -164,6 +174,8 @@ def SummaryPlot(options):
                 c[-1].Write()
                 if(options.hist2D):
                     histSlopeNvSlope1[-1].Write()
+                if(options.shFac):
+                    histShuntFactor[-1].Write()
 
 
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
@@ -381,7 +393,8 @@ if __name__ == "__main__":
     parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
     parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
-    parser.add_argument('--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
+    parser.add_argument('-2','--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
+    parser.add_argument('-s','--shuntFactor',action="store_true",dest="shFac",default=False,help="Creates histogram of shunt factors")
     options = parser.parse_args()
     date = options.date[0]
     run = options.run[0]
