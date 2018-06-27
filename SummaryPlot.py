@@ -269,6 +269,8 @@ def SummaryPlot(options):
                     minimum1 = minimums
                 #Creates Canvases for each Shunt and Range(TH1D)
                 c.append(TCanvas("Shunt %.1f  -  Range %i" % (sh, r), "histo"))
+                c[-1].Divide(2,1)
+
                 #Create Histograms for the shunt slopes
                 histshunt.append(TH1D("SLOPE_Sh:_%.1f_RANGE_r:_%d" %(sh,r),"SLOPE Sh: %.1f RANGE r: %d" %(sh,r), 100, minimums, maximums))
                 #histshunt[-1].SetTitle("SLOPE SH: %.1f "%(sh))
@@ -287,12 +289,27 @@ def SummaryPlot(options):
                     histShuntFactor.append(TH1D("ShuntFactor_Sh_%s_R_%.i"%(str(sh).replace(".",""),r),"Shunt Factor Shunt %.1f Range %i"%(sh,r),100,sh-1,sh+1))
                     histShuntFactor[-1].GetXaxis().SetTitle("Shunt Factor")
                     histShuntFactor[-1].GetYaxis().SetTitle("Frequency")
+                #Create Histograms for the Offsets
+                maxmin = cursor.execute("select max(offset),min(offset) from qieshuntparams where range=%i and shunt = %.1f;" % (r, sh)).fetchall()
+                maximum, minimum = maxmin[0]
+                maximumo  = max(plotBoundaries_offset[r], maximum)
+                minimumo  = min(-1*plotBoundaries_offset[r], minimum)
+
+                c[-1].cd(2)
+                histoffset.append(TH1D("OFFSET Sh: %.1f - R: %i" %(sh, r),"Shunt %.1f - Range %d" %(sh, r), 40, minimumo, maximumo))
+                histoffset[-1].SetTitle("OFFSET SH: %.1f R: %d"%(sh,r))
+                histoffset[-1].GetXaxis().SetTitle("Offset")
+                histoffset[-1].GetYaxis().SetTitle("Frequency")
+                gPad.SetLogy(1)
                 # Fills the histograms with the values fetched above
                 for val in values:
                     slope, offset, slSh1 = val
                     c[-1].cd(1)
                     histshunt[-1].Fill(slope)
                     histshunt[-1].Draw()
+                    c[-1].cd(2)
+                    histoffset[-1].Fill(offset)
+                    histoffset[-1].Draw()
                     if(options.hist2D):
                         histSlopeNvSlope1[-1].Fill(slSh1,slope)
                     if(options.shFac):
