@@ -12,37 +12,7 @@ import sys
 import argparse
 from MergeDatabases import MergeDatabases
 
-###################################################################################
-uid = []
-dbnames = []
-arg = ''
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='This produces Summary Plots for runs')
-    parser.add_argument('-a','--all', action="store_true", dest='all', default=False, help = "Creates plots for all files and a combined database")
-    parser.add_argument('-f','--files', action="append", dest = 'dbnames', help  = "Creates Summary Plots for a  file(s) list with -f [FILENAME] -f [FILENAME]")
-    parser.add_argument('-u','--uniqueID', action="append", dest = 'uid', help  = "Creates Summary Plots for a  file(s) based on Unique IDs list with -u [UniqueID] -u [UniqueID] -u [UniqueID] (format uniqueID as '0xXXXXXXXX_0xXXXXXXXX')")
-    parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
-    parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
-    parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
-    parser.add_argument('-2','--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
-    parser.add_argument('-s','--shuntFactor',action="store_true",dest="shFac",default=False,help="Creates histogram of shunt factors")
-    options = parser.parse_args()
-    date = options.date[0]
-    run = options.run[0]
-    all = options.all
-    total = options.all
-    if len(dbnames)!=0:
-        arg = 'f'
-    elif len(uid)!=0:
-        arg = 'u'
-    elif all:
-        arg = 'a'
-    elif total:
-        arg = 't'
-    print SummaryPlot(options)
 
-from ROOT import *
-gROOT.SetBatch(True)
 
 
 plotBoundaries_slope = [0.28, 0.33]
@@ -51,6 +21,9 @@ plotBoundaries_offset = [1, 16, 100, 800]
 
 
 def SummaryPlot(options):
+
+    from ROOT import *
+    gROOT.SetBatch(True)
     # Get required arguments from options
     date = options.date[0]
     run = options.run[0]
@@ -459,3 +432,32 @@ def shuntboundaries(tuple1,sh):
             maxis = .025
             minis = .031
     return maxis,minis
+
+###################################################################################
+uid = []
+dbnames = []
+arg = ''
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='This produces Summary Plots for runs')
+    parser.add_argument('-a','--all', action="store_true", dest='all', default=False, help = "Creates plots for all files and a combined database")
+    parser.add_argument('-f','--files', action="append", dest = 'dbnames', help  = "Creates Summary Plots for a  file(s) list with -f [FILENAME] -f [FILENAME]")
+    parser.add_argument('-u','--uniqueID', action="append", dest = 'uid', help  = "Creates Summary Plots for a  file(s) based on Unique IDs list with -u [UniqueID] -u [UniqueID] -u [UniqueID] (format uniqueID as '0xXXXXXXXX_0xXXXXXXXX')")
+    parser.add_argument('-t','--total', action="store_true", dest="total", default = False, help = "Creates total histograms for each shunt")
+    parser.add_argument('-d','--date', required=True, action="append", dest="date", help = "Enter date in format XX-XX-XXXX(Required)")
+    parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
+    parser.add_argument('-2','--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
+    parser.add_argument('-s','--shuntFactor',action="store_true",dest="shFac",default=False,help="Creates histogram of shunt factors")
+    options = parser.parse_args()
+    date = options.date[0]
+    run = options.run[0]
+    all = options.all
+    total = options.all
+    if len(dbnames)!=0:
+        arg = 'f'
+    elif len(uid)!=0:
+        arg = 'u'
+    elif all:
+        arg = 'a'
+    elif total:
+        arg = 't'
+    print SummaryPlot(options)
