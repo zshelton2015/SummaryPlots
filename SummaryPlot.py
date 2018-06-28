@@ -165,7 +165,10 @@ def SummaryPlot(options):
                     if(options.hist2D):
                         histSlopeNvSlope1[-1].Fill(slSh1,slope)
                     if(options.shFac):
-                        histShuntFactor[-1].Fill(slSh1/slope)
+                        try:
+                            histShuntFactor[-1].Fill(slSh1/slope)
+                        except ZeroDivisionError:
+                            print "Divide by Zero Error: %s Shunt %.1f Range %d"%(name,sh,r)
                     #histSlopeNvSlope1[-1].Draw()
                 # Write the histograms to the file, saving them for later
                 # histshunt[-1].Draw()
@@ -317,7 +320,10 @@ def SummaryPlot(options):
                     if(options.hist2D):
                         histSlopeNvSlope1[-1].Fill(slSh1,slope)
                     if(options.shFac):
-                        histShuntFactor[-1].Fill(slSh1/slope)
+                        try:
+                            histShuntFactor[-1].Fill(slSh1/slope)
+                        except ZeroDivisionError:
+                            pass
                 # Write the histograms to the file, saving them for later
                 # histshunt[-1].Draw()
                 # histoffset[-1].Draw()
