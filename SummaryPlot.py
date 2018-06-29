@@ -175,13 +175,17 @@ def SummaryPlot(options):
                 # c2[-1].Write()
                 c[-1].Update()
                 #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
-                
-                c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
+                if(options.images):
+                    c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
                 c[-1].Write()
                 if(options.hist2D):
                     histSlopeNvSlope1[-1].Write()
                 if(options.shFac):
                     histShuntFactor[-1].Write()
+                
+                if(options.verbose):
+                    print "Card %s Shunt %.1f Range %d Finished"%(name,sh,r)
+
 
 
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
@@ -329,12 +333,15 @@ def SummaryPlot(options):
                 # c2[-1].Write()
                 c[-1].Update()
                 #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
-                c[-1].Print("data/%s/Run_%s/SummaryPlots/TotalOutput/Total_SHUNT_%s_RANGE_%i.png"%(date, run, str(sh).replace(".",""), r))
+                if(options.images):
+                    c[-1].Print("data/%s/Run_%s/SummaryPlots/TotalOutput/Total_SHUNT_%s_RANGE_%i.png"%(date, run, str(sh).replace(".",""), r))
                 c[-1].Write()
                 if(options.hist2D):
                     histSlopeNvSlope1[-1].Write()
                 if(options.shFac):
                     histShuntFactor[-1].Write()
+                if(options.verbose):
+                    print "Total Plots Shunt %.1f Range %d Finished"%(sh,r)
 
 def shuntboundaries(tuple1,sh):
     maxi , mini = tuple1
@@ -447,6 +454,8 @@ if __name__ == "__main__":
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
     parser.add_argument('-2','--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
     parser.add_argument('-s','--shuntFactor',action="store_true",dest="shFac",default=False,help="Creates histogram of shunt factors")
+    parser.add_argument('--noImages',action="store_false",dest="images",default=True,help="Do not save images")
+    parser.add_argument('--verbose',action="store_true",dest="verbose",default=False,help="Print progress messages")
     options = parser.parse_args()
     date = options.date[0]
     run = options.run[0]
