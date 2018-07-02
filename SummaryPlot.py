@@ -5,14 +5,14 @@
 # Updated: 6/6/18 6:00PM CDT
 # Imported Packages
 import sqlite3
-from ROOT import *
 import pprint
 import glob
 import os
 import sys
 import argparse
 from MergeDatabases import MergeDatabases
-gROOT.SetBatch(True)
+
+
 
 
 plotBoundaries_slope = [0.28, 0.33]
@@ -25,6 +25,9 @@ THRESHOLD = .1
 
 
 def SummaryPlot(options):
+
+    from ROOT import *
+    gROOT.SetBatch(True)
     # Get required arguments from options
     date = options.date[0]
     run = options.run[0]
@@ -33,6 +36,8 @@ def SummaryPlot(options):
     bins = [0, 1, 2, 3]
 
     shunts = [1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11.5]
+
+    qieList = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
     #Failing Card Lists
 
@@ -52,6 +57,7 @@ def SummaryPlot(options):
     histslopes = []
     histSlopeNvSlope1 = []
     histShuntFactor = []
+    histSlvQie = []
 
     #Total Histograms
 
@@ -80,6 +86,12 @@ def SummaryPlot(options):
     TGaxis.SetMaxDigits(3)
     #files = cursor.excute("Select distinct runDirectory from qieshuntparams").Fetchall()
     idlist = cursor.execute("Select distinct id from qieshuntparams").fetchall()
+
+    # Get Ranges
+    bins = cursor.execute("SELECT DISTINCT range FROM qieshuntparams").fetchall()
+
+    # Get Shunts
+    shunts = cursor.execute("SELECT DISTINCT shunt FROM qieshuntparams").fetchall()
     #if (options.all):
     for nameList in idlist:
         name = nameList[0]
@@ -97,13 +109,15 @@ def SummaryPlot(options):
             #os.makedirs("data/%s/Run_%s/SummaryPlots/TotalPlots"%(date, run))
             # Modify rootout change title of output ROOT file
         rootout = TFile("data/%s/Run_%s/SummaryPlots/%s/summary_plot_%s.root" %(date, run, name, name), "recreate")
-        for r in bins:
-            for sh in shunts:
+        for ra in bins:
+            r = ra[0]
+            for shu in shunts:
+                sh = shu[0]
                 if (r == 2 or r == 3) and (sh != 1):
                     continue
                 # Fetch the values of slope and offset for the corresponding shunt and range
                 #values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f and id = '%s';" % (r, sh,name)).fetchall()
-                values = cursor.execute("select slope,offset, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
+                values = cursor.execute("select slope,offset,qie, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
 
                 # Fetch Max and minimum values for slope of shunt
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
@@ -131,6 +145,12 @@ def SummaryPlot(options):
                     histSlopeNvSlope1[-1].GetXaxis().SetTitle("Shunt 1 Slope")
                     histSlopeNvSlope1[-1].GetYaxis().SetTitle("Shunt %.1f Slope"%sh)
                 
+                #Create 2D histogram of slope vs qie
+                if(options.slVqie):
+                    histSlvQie.append(TH2D("SlopeVsQIE_Shunt_%s_Range_%d"%(str(sh).replace(".",""),r),"%s Slope Vs QIE Shunt %.1f Range %d"%(name,sh,r),16,0.5,16.5,40,minimums,maximums))
+                    histSlvQie[-1].GetXaxis().SetTitle("QIE")
+                    histSlvQie[-1].GetYaxis().SetTitle("Slope")
+
                 #Create histogram of shunt factor
                 if(options.shFac):
                     histShuntFactor.append(TH1D("ShuntFactor_Sh_%s_R_%.i"%(str(sh).replace(".",""),r),"Shunt Factor Shunt %.1f Range %i"%(sh,r),100,sh-1,sh+1))
@@ -152,7 +172,7 @@ def SummaryPlot(options):
                 # Fills the histograms with the values fetched above
                 for val in values:
                     #slope, offset = val
-                    slope, offset, slSh1 = val
+                    slope, offset,qie, slSh1 = val
                     #if r == 1 and sh == 1:
                     #print "".join(["Slope: ",str(slope),"; Offset: ",str(offset)])#,"; Slope1: ",slSh1])
                     c[-1].cd(1)
@@ -162,6 +182,8 @@ def SummaryPlot(options):
                     histoffset[-1].Fill(offset)
                     histoffset[-1].Draw()
                     #c[-1].cd(3)
+                    if(options.slVqie):
+                        histSlvQie[-1].Fill(qie,slope)
                     if(options.hist2D):
                         histSlopeNvSlope1[-1].Fill(slSh1,slope)
                     if(options.shFac):
@@ -176,13 +198,18 @@ def SummaryPlot(options):
                 # c2[-1].Write()
                 c[-1].Update()
                 #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
-
-                c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
+                if(options.images):
+                    c[-1].Print("data/%s/Run_%s/SummaryPlots/%s/ImagesOutput/%s_SHUNT_%s_RANGE_%i.png"%(date, run, name,name, str(sh).replace(".",""), r))
                 c[-1].Write()
                 if(options.hist2D):
                     histSlopeNvSlope1[-1].Write()
                 if(options.shFac):
                     histShuntFactor[-1].Write()
+                if(options.slVqie):
+                    histSlvQie[-1].Write()
+                if(options.verbose):
+                    print "Card %s Shunt %.1f Range %d Finished"%(name,sh,r)
+
 
 
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id= '%s';" % (r, sh,name)).fetchall()
@@ -330,12 +357,15 @@ def SummaryPlot(options):
                 # c2[-1].Write()
                 c[-1].Update()
                 #c[-1].SaveAs("data/%s/Run_%s/SummaryPlots/ImagesOutput/CARD_%s_SHUNT_%s_RANGE_%i.png"%(date, run, name, str(sh).replace(".",""), r))
-                c[-1].Print("data/%s/Run_%s/SummaryPlots/TotalOutput/Total_SHUNT_%s_RANGE_%i.png"%(date, run, str(sh).replace(".",""), r))
+                if(options.images):
+                    c[-1].Print("data/%s/Run_%s/SummaryPlots/TotalOutput/Total_SHUNT_%s_RANGE_%i.png"%(date, run, str(sh).replace(".",""), r))
                 c[-1].Write()
                 if(options.hist2D):
                     histSlopeNvSlope1[-1].Write()
                 if(options.shFac):
                     histShuntFactor[-1].Write()
+                if(options.verbose):
+                    print "Total Plots Shunt %.1f Range %d Finished"%(sh,r)
 
 def shuntboundaries(tuple1,sh):
     maxi , mini = tuple1
@@ -433,12 +463,13 @@ def shuntboundaries(tuple1,sh):
             maxis = .025
             minis = .031
     return maxis,minis
+
 ###################################################################################
 uid = []
 dbnames = []
 arg = ''
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='This produces Sumamry Plots for runs')
+    parser = argparse.ArgumentParser(description='This produces Summary Plots for runs')
     parser.add_argument('-a','--all', action="store_true", dest='all', default=False, help = "Creates plots for all files and a combined database")
     parser.add_argument('-f','--files', action="append", dest = 'dbnames', help  = "Creates Summary Plots for a  file(s) list with -f [FILENAME] -f [FILENAME]")
     parser.add_argument('-u','--uniqueID', action="append", dest = 'uid', help  = "Creates Summary Plots for a  file(s) based on Unique IDs list with -u [UniqueID] -u [UniqueID] -u [UniqueID] (format uniqueID as '0xXXXXXXXX_0xXXXXXXXX')")
@@ -447,5 +478,8 @@ if __name__ == "__main__":
     parser.add_argument('-r','--run', required=True, action="append", dest="run", type = int,help = "Enter the number run(Required)")
     parser.add_argument('-2','--hist2D',action="store_true",dest="hist2D",default=False,help="Creates 2D histogram of slope of shunt N vs. slope of shunt 1")
     parser.add_argument('-s','--shuntFactor',action="store_true",dest="shFac",default=False,help="Creates histogram of shunt factors")
+    parser.add_argument('--noImages',action="store_false",dest="images",default=True,help="Do not save images")
+    parser.add_argument('--verbose',action="store_true",dest="verbose",default=False,help="Print progress messages")
+    parser.add_argument('--slVqie',action="store_true",dest="slVqie",default=False,help="Create Plot of Slope vs QIE")
     options = parser.parse_args()
     SummaryPlot(options)
