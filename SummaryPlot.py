@@ -114,10 +114,10 @@ def SummaryPlot(options):
                 # Fetch Max and minimum values for slope of shunt
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
                 maximum, minimum = maxmin[0]
-		if maxmin[0] == (None,None):
-			maximum = 0
-			minimum = 0
-			print "Max Shunt and Min Shunt Value Errors"
+                if maxmin[0] == (None,None):
+                    maximum = 0
+                    minimum = 0
+                    print "Max Shunt and Min Shunt Value Errors"
                 maximums = max(plotBoundaries_slope[1]/sh, maximum+0.01)
                 minimums = min(plotBoundaries_slope[0]/sh, minimum-0.01)
                 if sh == 1:
@@ -312,7 +312,6 @@ def SummaryPlot(options):
                 #Creates Canvases for each Shunt and Range(TH1D)
                 c.append(TCanvas("Shunt %.1f  -  Range %i" % (sh, r), "histo"))
                 c[-1].Divide(2,1)
-
                 #Create Histograms for the shunt slopes
                 histshunt.append(TH1D("SLOPE_Sh:_%.1f_RANGE_r:_%d" %(sh,r),"SLOPE Sh: %.1f RANGE r: %d" %(sh,r), 100, minimums, maximums))
                 #histshunt[-1].SetTitle("SLOPE SH: %.1f "%(sh))
