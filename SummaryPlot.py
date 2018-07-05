@@ -113,7 +113,7 @@ def SummaryPlot(options):
                     continue
                 # Fetch the values of slope and offset for the corresponding shunt and range
                 #values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f and id = '%s';" % (r, sh,name)).fetchall()
-                values = cursor.execute("select slope,offset,qie,capid, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
+                values = cursor.execute("select slope,offset,qie,capid, id, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f and id = '%s';"%(r,sh,name)).fetchall()
 
                 # Fetch Max and minimum values for slope of shunt
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f and id = '%s';" % (r, sh,name)).fetchall()
@@ -190,17 +190,17 @@ def SummaryPlot(options):
                 # Fills the histograms with the values fetched above
                 for val in values:
                     #slope, offset = val
-                    slope, offset,qie,capid ,slSh1 = val
+                    slope, offset,qie,capid , id, slSh1= val
                     if (slopeFailH(sh,r,name,slope,thshunt,THRESHOLD) or offsetFail(sh,r,offset,name)):
-                        print "Card %s Has Failures:"%name
-                        if (slopeFailH(sh,r,name,slope) and offsetFail(sh,r,offset,name)):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
+                        print "Card %s Has Failures:"%id
+                        if (slopeFailH(sh,r,id,slope) and offsetFail(sh,r,offset,name)):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
                             print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif slopeFailH(sh,r,name,slope):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
+                        elif slopeFailH(sh,r,id,slope):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
                             print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif offsetFail(sh,r,offset,name):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
+                        elif offsetFail(sh,r,offset,id):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
                             print "Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                         c[-1].cd(1)
                     histshunt[-1].Fill(slope)
@@ -297,8 +297,8 @@ def SummaryPlot(options):
                 if (r == 2 or r == 3) and (sh != 1):
                     continue
                 # Fetch the values of slope and offset for the corresponding shunt and range
-                #values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f ;" % (r, sh)).fetchall()
-                values = cursor.execute("select slope,offset,qie,capid, (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f;"%(r,sh)).fetchall()
+                # values = cursor.execute("select slope,offset from qieshuntparams where range=%i and shunt=%.1f ;" % (r, sh)).fetchall()
+                values = cursor.execute("select slope, offset, qie, capid, id (SELECT slope from qieshuntparams where id=p.id and qie=p.qie and capID=p.capID and range=p.range and shunt=1) from qieshuntparams as p where range = %i and shunt = %.1f;"%(r,sh)).fetchall()
                 # Fetch Max and minimum values for slope of shunt
                 maxmin = cursor.execute("select max(slope),min(slope) from qieshuntparams where range=%i and shunt = %.1f;" % (r,sh)).fetchall()
                 maximum, minimum = maxmin[0]
@@ -345,19 +345,19 @@ def SummaryPlot(options):
                 for val in values:
                     #slope, offset = val
                     try:
-                        slope, offset,qie,capid ,slSh1 = val
+                        slope, offset, qie, capid, id ,slSh1 = val
                     except:
                         print val
                     if (slopeFailH(sh,r,name,slope,thshunt,THRESHOLD) or offsetFail(sh,r,offset,name)):
-                        print "Card %s Has Failures:"%name
-                        if (slopeFailH(sh,r,name,slope) and offsetFail(sh,r,offset,name)):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
+                        print "Card %s Has Failures:"%id
+                        if (slopeFailH(sh,r,id,slope) and offsetFail(sh,r,offset,name)):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
                             print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif slopeFailH(sh,r,name,slope):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
+                        elif slopeFailH(sh,r,id,slope):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
                             print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif offsetFail(sh,r,offset,name):
-                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
+                        elif offsetFail(sh,r,offset,id):
+                            FailedCards.append({'name':id,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
                             print "Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                     c[-1].cd(1)
                     histshunt[-1].Fill(slope)
