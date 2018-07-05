@@ -198,10 +198,10 @@ def SummaryPlot(options):
                         test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
                         print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                     elif slopeFailH(sh,r,name,slope):
-                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
+                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
                         print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                     elif offsetFail(sh,r,offset,name):
-                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
+                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
                         print "Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
 
                         c[-1].cd(1)
@@ -241,7 +241,7 @@ def SummaryPlot(options):
                     histSlvQie[-1].Write()
                 if(options.verbose):
                     print "Card %s Shunt %.1f Range %d Finished"%(name,sh,r)
-
+                FailedCards.append({'%s'%name:test})
     if(options.all):
         rundir = "data/%s/Run_%s/SummaryPlots" % (date, run)
         outdir = "adapterTests"
@@ -352,16 +352,16 @@ def SummaryPlot(options):
                     except:
                         print val
                     if slopeFailH(sh,r,name,slope,thshunt,THRESHOLD) or offsetFail(sh,r,offset,name):
-                        print "Card %s Failed"%name
-                        if slopeFailH(sh,r,name,slope) and offsetFail(sh,r,offset,name):
-                            test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
-                            print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif slopeFailH(sh,r,name,slope):
-                            test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
-                            print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
-                        elif offsetFail(sh,r,offset,name):
-                            test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
-                            print "Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
+                        print "Card %s Has Failures:"%name
+                    if slopeFailH(sh,r,name,slope) and offsetFail(sh,r,offset,name):
+                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
+                        print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
+                    elif slopeFailH(sh,r,name,slope):
+                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
+                        print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
+                    elif offsetFail(sh,r,offset,name):
+                        test.append({'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
+                        print "Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                     c[-1].cd(1)
                     histshunt[-1].Fill(slope)
                     histshunt[-1].Draw()
@@ -390,7 +390,6 @@ def SummaryPlot(options):
                     histShuntFactor[-1].Write()
                 if(options.verbose):
                     print "Total Plots Shunt %.1f Range %d Finished"%(sh,r)
-    FailedCards.append({'%s'%name:test})
     if len(FailedCards)>1:
         outputText = open("data/%s/Run_%s/SummaryPlots/Failed_Shunts_and_Ranges.txt"%(date,run),"w+")
         # if os.path.exists("data/%s/Run_%s/SummaryPlots/FailedCards.db"%(date,run)):
