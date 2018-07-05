@@ -191,7 +191,7 @@ def SummaryPlot(options):
                 for val in values:
                     #slope, offset = val
                     slope, rang, offset,qie,capid , id, slSh1= val
-                    if (slopeFailH(sh,rang,name,slope,thshunt,THRESHOLD) or offsetFail(sh,rang,offset,name)):
+                    if (slopeFailH(sh,rang,name,slope,thshunt,THRESHOLD) or offsetFail(rang,offset,name)):
                         print "Card %s Has Failures:"%id
                         if (slopeFailH(sh,rang,id,slope) and offsetFail(rang,offset,name)):
                             FailedCards.append({'name':id,'shunt':sh, 'range':rang, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
@@ -348,7 +348,7 @@ def SummaryPlot(options):
                         slope,rang, offset, qie, capid, id ,slSh1 = val
                     except:
                         print val
-                    if (slopeFailH(sh,rang,name,slope,thshunt,THRESHOLD) or offsetFail(sh,rang,offset,name)):
+                    if (slopeFailH(sh,rang,name,slope,thshunt,THRESHOLD) or offsetFail(rang,offset,name)):
                         print "Card %s Has Failures:"%id
                         if (slopeFailH(sh,rang,id,slope) and offsetFail(rang,offset,name)):
                             FailedCards.append({'name':id,'shunt':sh, 'range':rang, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
