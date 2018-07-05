@@ -92,7 +92,6 @@ def SummaryPlot(options):
     #if (options.all):
     for nameList in idlist:
         name = nameList[0]
-        FailedCards = []
         if not options.uid is None:
             if name not in options.uid:
                 continue
@@ -198,7 +197,7 @@ def SummaryPlot(options):
                             FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
                             print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                         elif slopeFailH(sh,r,name,slope):
-                            FailedCards.append({'name':name'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
+                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
                             print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                         elif offsetFail(sh,r,offset,name):
                             FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
@@ -355,7 +354,7 @@ def SummaryPlot(options):
                             FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':1})
                             print "Slope and Offset in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                         elif slopeFailH(sh,r,name,slope):
-                            FailedCards.append({'name':name'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
+                            FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':1,'BadOffset':0})
                             print "Slope in CAPID %i in QIE %i in Shunt %.1f and Range %i"%(capid,qie,sh,r)
                         elif offsetFail(sh,r,offset,name):
                             FailedCards.append({'name':name,'shunt':sh, 'range':r, 'slope':slope,'offset':offset,'Qie':qie,'CapID':capid,'BadSlope':0,'BadOffset':1})
