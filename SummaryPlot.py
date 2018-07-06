@@ -71,7 +71,7 @@ def SummaryPlot(options):
 
     #Set Axes Digits
     if(options.all or not options.uid is None):
-        files = glob.glob("data/%s/Run_%s/qieCalibrationParameters*.db"%(date,run))
+        files = glob.glob("data/%s/Run_%s/qieCalibrationParameters_*.db"%(date,run))
     elif(len(options.dbnames) != 0):
         files = []
         for f in options.dbnames:
